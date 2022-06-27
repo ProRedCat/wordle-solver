@@ -138,43 +138,46 @@ class WordleSolver:
 
         self.eliminateWords()
 
-words = []
+def main():
+    words = []
 
-with open("five-letter-words.txt", 'r') as f:
-    words = f.readlines()
+    with open("five-letter-words.txt", 'r') as f:
+        words = f.readlines()
 
-for i in range(len(words)):
-    words[i] = words[i].replace("\n", "").lower()
+    for i in range(len(words)):
+        words[i] = words[i].replace("\n", "").lower()
 
-wordleSolver = WordleSolver(words)
+    wordleSolver = WordleSolver(words)
 
-numOfGuesses = 0
+    numOfGuesses = 0
+    while(True):
+        guessedWord = str(input("What word was guessed? ")).lower()
+        wordResult = str(input("What was the result? ")).split()
 
-while(True):
-    guessedWord = str(input("What word was guessed? ")).lower()
-    wordResult = str(input("What was the result? ")).split()
+        numOfGuesses += 1
 
-    numOfGuesses += 1
+        if(wordResult.count("2") == 5):
+            break
 
-    if(wordResult.count("2") == 5):
-        break
-
-    wordleSolver.processWord(guessedWord, wordResult)
+        wordleSolver.processWord(guessedWord, wordResult)
 
 
-    print("Remaining words:")
-    for word in wordleSolver.wordsList:
-        print("- " + word)
-    print()
-    if(len(wordleSolver.wordsList) == 1):
-        print("The answer is: " + wordleSolver.wordsList[0])
-    else:
-        print("Best guess: ")
-        print("- " + wordleSolver.findBestWord())
+        print("Remaining words:")
+        for word in wordleSolver.wordsList:
+            print("- " + word)
         print()
+        if(len(wordleSolver.wordsList) == 1):
+            print("The answer is: " + wordleSolver.wordsList[0])
+        else:
+            print("Best guess: ")
+            print("- " + wordleSolver.findBestWord())
+            print()
 
-print()
-print("Number of guesses " + str(numOfGuesses))
-print("Guesses: ")
-for word in wordleSolver.guessedWords:
-    print("- " + word)
+    print()
+    print("Number of guesses " + str(numOfGuesses))
+    print("Guesses: ")
+    for word in wordleSolver.guessedWords:
+        print("- " + word)
+
+if(__name__ == "__main__"):
+    main()
