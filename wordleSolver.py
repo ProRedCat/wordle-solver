@@ -17,6 +17,7 @@ class WordleSolver:
         self.minLetters = dict()
 
         self.wordsList = list(words)
+        self.allWords = list(words)
     
     def evaluateWord(self, word: str, answer: str) -> List[int]:
         wordUsedLetters = np.full(len(word), False)
@@ -83,16 +84,58 @@ class WordleSolver:
 
         self.wordsList = validWords
 
-    def findBestWord(self) -> str:
-        wordCount = 0
-        wordEvaluation = dict()
-        for word in self.wordsList:
-            if(word not in self.guessedWords):
-                wordEvaluation[word] = 0
-                for answer in self.wordsList:
-                    wordEvaluation[word] += sum(self.evaluateWord(word, answer))
+    # def findBestWord(self) -> str:
+    #     wordCount = 0
+    #     wordEvaluation = dict()
+    #     for word in self.wordsList:
+    #         if(word not in self.guessedWords):
+    #             wordEvaluation[word] = 0
+    #             for answer in self.wordsList:
+    #                 wordEvaluation[word] += sum(self.evaluateWord(word, answer))
 
-            wordCount += 1
+    #         wordCount += 1
+
+    #     if(len(wordEvaluation) == 0):
+    #         return ""    
+            
+    #     return max(wordEvaluation, key=wordEvaluation.get)
+
+    def findMissingLetters(self) -> Set[str]:
+        missingLetters = set()
+
+        for word in self.wordsList:
+            for letter in word:
+                if(letter in missingLetters):
+                    continue
+
+                if(letter not in self.yellowLetters and letter not in self.greenLetters):
+                    missingLetters.add(letter)
+
+        return missingLetters
+
+    def findBestWord(self) -> str:
+        possibleGuesses = list()
+        missingLetters = self.findMissingLetters()
+
+        for word in self.allWords:
+            possibleGuess = False
+            for letter in word:
+                if(letter in missingLetters):
+                    possibleGuess = True
+                    continue
+                
+                if(letter in self.yellowLetters or letter in self.greenLetters):
+                    possibleGuess = False
+                    break
+
+            if(possibleGuess):
+                possibleGuesses.append(word)
+        
+        wordEvaluation = dict()
+        for word in possibleGuesses:
+            wordEvaluation[word] = 0
+            for answer in self.wordsList:
+                wordEvaluation[word] += sum(self.evaluateWord(word, answer))
 
         if(len(wordEvaluation) == 0):
             return ""    
@@ -169,9 +212,14 @@ def main():
         if(len(wordleSolver.wordsList) == 1):
             print("The answer is: " + wordleSolver.wordsList[0])
         else:
-            print("Best guess: ")
-            print("- " + wordleSolver.findBestWord())
-            print()
+            bestGuess =  wordleSolver.findBestWord()
+            if(bestGuess == ""):
+                print("No suggestions avaliable")
+            else:
+                print("Best guess: ")
+                
+                print("- " + bestGuess)
+                print()
 
     print()
     print("Number of guesses " + str(numOfGuesses))
