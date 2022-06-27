@@ -1,10 +1,13 @@
-from typing import Dict, Set, List
 import json
-def evaluateWord(word: str, answer: str) -> List[int]:
-    wordUsedLetters = [False, False, False, False, False]
-    answerUsedLetters = [False, False, False, False, False]
+import numpy as np
 
-    evaluation = [0, 0, 0, 0, 0]
+from typing import Dict, Set, List
+
+def evaluateWord(word: str, answer: str) -> List[int]:
+    wordUsedLetters = np.full(len(word), False)
+    answerUsedLetters = np.full(len(word), False)
+
+    evaluation = np.full(len(word), 0)
 
     for i in range(len(word)):
         if(word[i] == answer[i]):
@@ -91,6 +94,8 @@ greyLetters = set()
 yellowLetters = dict()
 greenLetters = dict()
 
+usedLetters = set()
+
 maxLetters = dict()
 minLetters = dict()
 
@@ -99,7 +104,7 @@ wordsList = list(words)
 numOfGuesses = 0
 
 while(True):
-    guessedWord = str(input("What word was guessed? "))
+    guessedWord = str(input("What word was guessed? ")).lower()
     wordResult = str(input("What was the result? ")).split()
 
     guessedWords.append(guessedWord)
@@ -140,7 +145,8 @@ while(True):
                 greenLetters[guessedWord[i]].add(i)
             else:
                 greenLetters[guessedWord[i]] = {i}
-
+        usedLetters.add(guessedWord[i])
+    
     # print(greyLetters)
     # print(yellowLetters)
     # print(greenLetters)
@@ -151,10 +157,13 @@ while(True):
     print("Remaining words:")
     for word in wordsList:
         print("- " + word)
-
-    print("Best word: ")
-    print("- " + findBestWord(guessedWords, wordsList))
     print()
+    if(len(wordsList) == 1):
+        print("The answer is: " + wordsList[0])
+    else:
+        print("Best guess: ")
+        print("- " + findBestWord(guessedWords, wordsList))
+        print()
 
 print()
 print("Number of guesses " + str(numOfGuesses))
