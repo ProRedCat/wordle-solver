@@ -3,6 +3,8 @@ import numpy as np
 
 from typing import Dict, Set, List
 
+from pyparsing import Word
+
 class WordleSolver:
     def __init__(self, words: List[str]) -> None:
         self.guessedWords = list()
@@ -25,19 +27,19 @@ class WordleSolver:
 
         evaluation = np.full(len(word), 0)
 
-        for i in range(len(word)):
-            if(word[i] == answer[i]):
-                evaluation[i] = 2
-                wordUsedLetters[i] = True
-                answerUsedLetters[i] = True
+        for index, (wordLetter, answerLetter) in enumerate(zip(word, answer)):
+            if(wordLetter == answerLetter):
+                evaluation[index] = 2
+                wordUsedLetters[index] = True
+                answerUsedLetters[index] = True
 
-        for i in range(len(word)):
-            if(wordUsedLetters[i] == False):
-                for j in range(len(answer)):
-                    if(answerUsedLetters[j] == False and word[i] == answer[j]):
-                        evaluation[i] = 1
-                        answerUsedLetters[j] = True
-                        wordUsedLetters[i] = True     
+        for index, (wordLetter, wordUsedLetter) in enumerate(zip(word, wordUsedLetters)):
+            if(wordUsedLetter == False):
+                for answerLetter, answerUsedLetter in zip(answer, answerUsedLetters):
+                    if(answerUsedLetter == False and wordLetter == answerLetter):
+                        evaluation[index] = 1
+                        answerUsedLetters[index] = True
+                        wordUsedLetters[index] = True     
                         break  
 
         return evaluation
@@ -149,35 +151,40 @@ class WordleSolver:
         for letter in word:
             letterCounts[letter] = word.count(letter)
 
-        for letter in letterCounts:
-            if(letterCounts[letter] > 1):
+        for countLetter in letterCounts:
+            if(letterCounts[countLetter] > 1):
                 foundMax = False
-                for i in range(len(result)):
-                    if(word[i] == letter and result[i] == "0"):
-                        letterCount = 0
-                        for j in range(len(result)):
-                            if(word[j] == letter and (result[j] == "1" or result[j] == "2")):
-                                letterCount += 1
-                        self.maxLetters[letter] = letterCount
-                        foundMax = True
-                if(foundMax == False):
-                    self.minLetters[letter] = letterCounts[letter]
 
-        for i in range(len(result)):
-            if(result[i] == "0"):
-                if(word[i] not in self.maxLetters):
-                    self.greyLetters.add(word[i])
-            elif(result[i] == "1"):
-                if(word[i] in self.yellowLetters):
-                    self.yellowLetters[word[i]].add(i)
+                for wordLetter, letterResult, in zip(word, result):
+                    if(wordLetter == letter and letterResult == "0"):
+                        letterCount = 0
+
+                        for otherLetter, otherResult in zip(word, result):
+                            if(otherLetter == letter and (otherResult == "1" or otherResult== "2")):
+                                letterCount += 1
+
+                        self.maxLetters[countLetter] = letterCount
+                        foundMax = True
+
+                if(foundMax == False):
+                    self.minLetters[countLetter] = letterCounts[countLetter]
+
+        for letterIndex, (letter, letterResult) in enumerate(zip(word, result)):
+            if(letterResult== "0"):
+                if(letter not in self.maxLetters):
+                    self.greyLetters.add(letter)
+            elif(letterResult == "1"):
+                if(letter in self.yellowLetters):
+                    self.yellowLetters[letter].add(letterIndex)
                 else:
-                    self.yellowLetters[word[i]] = {i} 
-            elif(result[i] == "2"):
-                if(word[i] in self.greenLetters):
-                    self.greenLetters[word[i]].add(i)
+                    self.yellowLetters[letter] = {letterIndex} 
+            elif(letterResult == "2"):
+                if(letter in self.greenLetters):
+                    self.greenLetters[letter].add(letterIndex)
                 else:
-                    self.greenLetters[word[i]] = {i}
-            self.usedLetters.add(word[i])
+                    self.greenLetters[letter] = {letterIndex}
+
+            self.usedLetters.add(letter)
 
         self.eliminateWords()
 
@@ -195,15 +202,15 @@ def main():
     numOfGuesses = 0
     while(True):
         guessedWord = str(input("What word was guessed? ")).lower()
+        print(wordleSolver.evaluateWord(guessedWord, "balls"))
         wordResult = str(input("What was the result? ")).split()
 
         numOfGuesses += 1
 
-        if(wordResult.count("2") == 5):
-            break
-
         wordleSolver.processWord(guessedWord, wordResult)
 
+        if(wordResult.count("2") == 5):
+            break
 
         print("Remaining words:")
         for word in wordleSolver.wordsList:
