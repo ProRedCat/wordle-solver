@@ -1,9 +1,7 @@
 import json
 import numpy as np
-
+import random
 from typing import Dict, Set, List
-
-from pyparsing import Word
 
 class WordleSolver:
     def __init__(self, words: List[str]) -> None:
@@ -33,13 +31,13 @@ class WordleSolver:
                 wordUsedLetters[index] = True
                 answerUsedLetters[index] = True
 
-        for index, (wordLetter, wordUsedLetter) in enumerate(zip(word, wordUsedLetters)):
+        for i, (wordLetter, wordUsedLetter) in enumerate(zip(word, wordUsedLetters)):
             if(wordUsedLetter == False):
-                for answerLetter, answerUsedLetter in zip(answer, answerUsedLetters):
+                for j, (answerLetter, answerUsedLetter) in enumerate(zip(answer, answerUsedLetters)):
                     if(answerUsedLetter == False and wordLetter == answerLetter):
-                        evaluation[index] = 1
-                        answerUsedLetters[index] = True
-                        wordUsedLetters[index] = True     
+                        evaluation[i] = 1
+                        answerUsedLetters[j] = True
+                        wordUsedLetters[i] = True     
                         break  
 
         return evaluation
@@ -81,6 +79,9 @@ class WordleSolver:
         validWords = list()
 
         for word in self.wordsList:
+            if(word in self.guessedWords):
+                continue
+
             if(self.validateWord(word)):
                 validWords.append(word)
 
@@ -116,6 +117,9 @@ class WordleSolver:
         return missingLetters
 
     def findBestWord(self) -> str:
+        if(len(self.wordsList) == 1):
+            return self.wordsList[0]
+
         possibleGuesses = list()
         missingLetters = self.findMissingLetters()
 
@@ -140,7 +144,10 @@ class WordleSolver:
                 wordEvaluation[word] += sum(self.evaluateWord(word, answer))
 
         if(len(wordEvaluation) == 0):
-            return ""    
+            for word in self.wordsList:
+                 wordEvaluation[word] = 0
+                 for answer in self.wordsList:
+                    wordEvaluation[word] += sum(self.evaluateWord(word, answer))    
             
         return max(wordEvaluation, key=wordEvaluation.get)
 
@@ -197,9 +204,8 @@ def main():
     for i in range(len(words)):
         words[i] = words[i].replace("\n", "").lower()
 
-    wordleSolver = WordleSolver(words)
-
     numOfGuesses = 0
+    wordleSolver = WordleSolver(words)
     while(True):
         guessedWord = str(input("What word was guessed? ")).lower()
         wordResult = str(input("What was the result? ")).split()
@@ -218,12 +224,11 @@ def main():
         if(len(wordleSolver.wordsList) == 1):
             print("The answer is: " + wordleSolver.wordsList[0])
         else:
+            print("Calculating best guess:")
             bestGuess =  wordleSolver.findBestWord()
             if(bestGuess == ""):
                 print("No suggestions avaliable")
             else:
-                print("Best guess: ")
-                
                 print("- " + bestGuess)
                 print()
 
