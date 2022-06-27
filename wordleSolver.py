@@ -156,11 +156,11 @@ class WordleSolver:
                 foundMax = False
 
                 for wordLetter, letterResult, in zip(word, result):
-                    if(wordLetter == letter and letterResult == "0"):
+                    if(wordLetter == countLetter and letterResult == "0"):
                         letterCount = 0
 
                         for otherLetter, otherResult in zip(word, result):
-                            if(otherLetter == letter and (otherResult == "1" or otherResult== "2")):
+                            if(otherLetter == countLetter and (otherResult == "1" or otherResult== "2")):
                                 letterCount += 1
 
                         self.maxLetters[countLetter] = letterCount
@@ -202,7 +202,6 @@ def main():
     numOfGuesses = 0
     while(True):
         guessedWord = str(input("What word was guessed? ")).lower()
-        print(wordleSolver.evaluateWord(guessedWord, "balls"))
         wordResult = str(input("What was the result? ")).split()
 
         numOfGuesses += 1
