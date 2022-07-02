@@ -223,6 +223,8 @@ def main():
         print()
         if(len(wordleSolver.wordsList) == 1):
             print("The answer is: " + wordleSolver.wordsList[0])
+        elif(len(wordleSolver.wordsList) == 2):
+            print("There are only two options remaining, pick one")
         else:
             print("Calculating best guess:")
             bestGuess =  wordleSolver.findBestWord()
