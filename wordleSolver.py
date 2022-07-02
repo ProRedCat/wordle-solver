@@ -87,22 +87,6 @@ class WordleSolver:
 
         self.wordsList = validWords
 
-    # def findBestWord(self) -> str:
-    #     wordCount = 0
-    #     wordEvaluation = dict()
-    #     for word in self.wordsList:
-    #         if(word not in self.guessedWords):
-    #             wordEvaluation[word] = 0
-    #             for answer in self.wordsList:
-    #                 wordEvaluation[word] += sum(self.evaluateWord(word, answer))
-
-    #         wordCount += 1
-
-    #     if(len(wordEvaluation) == 0):
-    #         return ""    
-            
-    #     return max(wordEvaluation, key=wordEvaluation.get)
-
     def findMissingLetters(self) -> Set[str]:
         missingLetters = set()
 
@@ -117,7 +101,7 @@ class WordleSolver:
         return missingLetters
 
     def findBestWord(self) -> str:
-        if(len(self.wordsList) == 1):
+        if(len(self.wordsList) == 1 or len(self.wordsList) == 2):
             return self.wordsList[0]
 
         possibleGuesses = list()
