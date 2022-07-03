@@ -4,7 +4,7 @@ import random
 from typing import Dict, Set, List
 
 class WordleSolver:
-    def __init__(self, words: List[str]) -> None:
+    def __init__(self, words: List[str], answers: List[str]) -> None:
         self.guessedWords = list()
 
         self.greyLetters = set()
@@ -16,7 +16,7 @@ class WordleSolver:
         self.maxLetters = dict()
         self.minLetters = dict()
 
-        self.wordsList = list(words)
+        self.answers = list(answers)
         self.allWords = list(words)
     
     def evaluateWord(self, word: str, answer: str) -> List[int]:
@@ -78,19 +78,19 @@ class WordleSolver:
     def eliminateWords(self) -> List[str]:
         validWords = list()
 
-        for word in self.wordsList:
+        for word in self.answers:
             if(word in self.guessedWords):
                 continue
 
             if(self.validateWord(word)):
                 validWords.append(word)
 
-        self.wordsList = validWords
+        self.answers = validWords
 
     def findMissingLetters(self) -> Set[str]:
         missingLetters = set()
 
-        for word in self.wordsList:
+        for word in self.answers:
             for letter in word:
                 if(letter in missingLetters):
                     continue
@@ -101,8 +101,8 @@ class WordleSolver:
         return missingLetters
 
     def findBestWord(self) -> str:
-        if(len(self.wordsList) == 1 or len(self.wordsList) == 2):
-            return self.wordsList[0]
+        if(len(self.answers) == 1 or len(self.answers) == 2):
+            return self.answers[0]
 
         possibleGuesses = list()
         missingLetters = self.findMissingLetters()
@@ -124,13 +124,13 @@ class WordleSolver:
         wordEvaluation = dict()
         for word in possibleGuesses:
             wordEvaluation[word] = 0
-            for answer in self.wordsList:
+            for answer in self.answers:
                 wordEvaluation[word] += sum(self.evaluateWord(word, answer))
 
         if(len(wordEvaluation) == 0):
-            for word in self.wordsList:
+            for word in self.answers:
                  wordEvaluation[word] = 0
-                 for answer in self.wordsList:
+                 for answer in self.answers:
                     wordEvaluation[word] += sum(self.evaluateWord(word, answer))    
             
         return max(wordEvaluation, key=wordEvaluation.get)
@@ -181,15 +181,22 @@ class WordleSolver:
 
 def main():
     words = []
+    answers = []
 
     with open("five-letter-words.txt", 'r') as f:
         words = f.readlines()
 
+    with open("possible-solutions.txt", 'r') as f:
+        answers = f.readlines()
+
     for i in range(len(words)):
         words[i] = words[i].replace("\n", "").lower()
 
+    for i in range(len(answers)):
+        answers[i] = answers[i].replace("\n", "").lower()
+
     numOfGuesses = 0
-    wordleSolver = WordleSolver(words)
+    wordleSolver = WordleSolver(words, answers)
     while(True):
         guessedWord = str(input("What word was guessed? ")).lower()
         wordResult = str(input("What was the result? ")).split()
@@ -202,12 +209,12 @@ def main():
             break
 
         print("Remaining words:")
-        for word in wordleSolver.wordsList:
+        for word in wordleSolver.answers:
             print("- " + word)
         print()
-        if(len(wordleSolver.wordsList) == 1):
-            print("The answer is: " + wordleSolver.wordsList[0])
-        elif(len(wordleSolver.wordsList) == 2):
+        if(len(wordleSolver.answers) == 1):
+            print("The answer is: " + wordleSolver.answers[0])
+        elif(len(wordleSolver.answers) == 2):
             print("There are only two options remaining, pick one")
         else:
             print("Calculating best guess:")
